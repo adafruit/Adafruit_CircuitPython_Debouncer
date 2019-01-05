@@ -25,7 +25,7 @@
 
 Debounces an arbitrary predicate function (typically created as a lambda) of 0 arguments.
 Since a very common use is debouncing a digital input pin, the initializer accepts a pin number
- instead of a lambda.
+instead of a lambda.
 
 * Author(s): Dave Astels
 
