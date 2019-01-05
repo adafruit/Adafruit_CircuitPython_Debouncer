@@ -25,10 +25,13 @@ THE SOFTWARE.
 # pylint: disable=invalid-name
 
 import board
-from digitalio import Pull
+import digitalio
 from adafruit_debouncer import Debouncer
 
-switch = Debouncer(board.D12, Pull.UP)
+pin = digitalio.DigitalInOut(board.D12)
+pin.direction = digitalio.Direction.INPUT
+pin.pull = digitalio.Pull.UP
+switch = Debouncer(pin)
 
 while True:
     switch.update()

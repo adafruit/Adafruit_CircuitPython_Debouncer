@@ -47,33 +47,26 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Debouncer.git"
 
 import time
 import digitalio
-import microcontroller
+
+_DEBOUNCED_STATE = 0x01
+_UNSTABLE_STATE = 0x02
+_CHANGED_STATE = 0x04
 
 class Debouncer(object):
     """Debounce an input pin or an arbitrary predicate"""
 
-    DEBOUNCED_STATE = 0x01
-    UNSTABLE_STATE = 0x02
-    CHANGED_STATE = 0x04
-
-
-    def __init__(self, pin_or_predicate, mode=None, interval=0.010):
+    def __init__(self, io_or_predicate, interval=0.010):
         """Make am instance.
-           :param int/function pin_or_predicate: the pin (from board) to debounce
-           :param int mode: digitalio.Pull.UP or .DOWN (default is no pull up/down)
+           :param DigitalInOut/function io_or_predicate: the pin (from board) to debounce
            :param int interval: bounce threshold in seconds (default is 0.010, i.e. 10 milliseconds)
         """
         self.state = 0x00
-        if isinstance(pin_or_predicate, microcontroller.Pin):
-            pin = digitalio.DigitalInOut(pin_or_predicate)
-            pin.direction = digitalio.Direction.INPUT
-            if mode is not None:
-                pin.pull = mode
-            self.function = lambda: pin.value
+        if isinstance(io_or_predicate, digitalio.DigitalInOut):
+            self.function = lambda: io_or_predicate.value
         else:
-            self.function = pin_or_predicate
+            self.function = io_or_predicate
         if self.function():
-            self.__set_state(Debouncer.DEBOUNCED_STATE | Debouncer.UNSTABLE_STATE)
+            self._set_state(_DEBOUNCED_STATE | _UNSTABLE_STATE)
         self.previous_time = 0
         if interval is None:
             self.interval = 0.010
@@ -81,51 +74,51 @@ class Debouncer(object):
             self.interval = interval
 
 
-    def __set_state(self, bits):
+    def _set_state(self, bits):
         self.state |= bits
 
 
-    def __unset_state(self, bits):
+    def _unset_state(self, bits):
         self.state &= ~bits
 
 
-    def __toggle_state(self, bits):
+    def _toggle_state(self, bits):
         self.state ^= bits
 
 
-    def __get_state(self, bits):
+    def _get_state(self, bits):
         return (self.state & bits) != 0
 
 
     def update(self):
         """Update the debouncer state. MUST be called frequently"""
         now = time.monotonic()
-        self.__unset_state(Debouncer.CHANGED_STATE)
+        self._unset_state(_CHANGED_STATE)
         current_state = self.function()
-        if current_state != self.__get_state(Debouncer.UNSTABLE_STATE):
+        if current_state != self._get_state(_UNSTABLE_STATE):
             self.previous_time = now
-            self.__toggle_state(Debouncer.UNSTABLE_STATE)
+            self._toggle_state(_UNSTABLE_STATE)
         else:
             if now - self.previous_time >= self.interval:
-                if current_state != self.__get_state(Debouncer.DEBOUNCED_STATE):
+                if current_state != self._get_state(_DEBOUNCED_STATE):
                     self.previous_time = now
-                    self.__toggle_state(Debouncer.DEBOUNCED_STATE)
-                    self.__set_state(Debouncer.CHANGED_STATE)
+                    self._toggle_state(_DEBOUNCED_STATE)
+                    self._set_state(_CHANGED_STATE)
 
 
     @property
     def value(self):
         """Return the current debounced value."""
-        return self.__get_state(Debouncer.DEBOUNCED_STATE)
+        return self._get_state(_DEBOUNCED_STATE)
 
 
     @property
     def rose(self):
         """Return whether the debounced value went from low to high at the most recent update."""
-        return self.__get_state(self.DEBOUNCED_STATE) and self.__get_state(self.CHANGED_STATE)
+        return self._get_state(_DEBOUNCED_STATE) and self._get_state(_CHANGED_STATE)
 
 
     @property
     def fell(self):
         """Return whether the debounced value went from high to low at the most recent update."""
-        return (not self.__get_state(self.DEBOUNCED_STATE)) and self.__get_state(self.CHANGED_STATE)
+        return (not self._get_state(_DEBOUNCED_STATE)) and self._get_state(_CHANGED_STATE)
