@@ -34,7 +34,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Adafruit debouncer Library'
+project = u'Adafruit Debouncer Library'
 copyright = u'2019 Dave Astels'
 author = u'Dave Astels'
 
