@@ -33,14 +33,17 @@ Usage Example
 
 .. code-block:: python
 
-        import board
-        from digitalio import Pull
-        from adafruit_debouncer import Debouncer
+    import board
+    import digitalio
+    from adafruit_debouncer import Debouncer
 
-        switch = Debouncer(board.D12, Pull.UP)
+    pin = digitalio.DigitalInOut(board.D12)
+    pin.direction = digitalio.Direction.INPUT
+    pin.pull = digitalio.Pull.UP
+    switch = Debouncer(pin)
 
-        while True:
-            switch.update()
+    while True:
+        switch.update()
         if switch.fell:
             print('Just pressed')
         if switch.rose:
