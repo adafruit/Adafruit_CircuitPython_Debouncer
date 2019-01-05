@@ -9,8 +9,8 @@ Introduction
     :target: https://discord.gg/nBQh6qu
     :alt: Discord
 
-.. image:: https://travis-ci.com/adafruit/Adafruit_CircuitPython_debouncer.svg?branch=master
-    :target: https://travis-ci.com/adafruit/Adafruit_CircuitPython_debouncer
+.. image:: https://travis-ci.com/adafruit/Adafruit_CircuitPython_Debouncer.svg?branch=master
+    :target: https://travis-ci.com/adafruit/Adafruit_CircuitPython_Debouncer
     :alt: Build Status
 
 Debounces an arbitrary predicate function (typically created as a lambda) of 0 arguments.
