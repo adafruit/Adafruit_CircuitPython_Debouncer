@@ -47,10 +47,11 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Debouncer.git"
 
 import time
 import digitalio
+from micropython import const
 
-_DEBOUNCED_STATE = 0x01
-_UNSTABLE_STATE = 0x02
-_CHANGED_STATE = 0x04
+_DEBOUNCED_STATE = const(0x01)
+_UNSTABLE_STATE = const(0x02)
+_CHANGED_STATE = const(0x04)
 
 class Debouncer(object):
     """Debounce an input pin or an arbitrary predicate"""
@@ -68,10 +69,7 @@ class Debouncer(object):
         if self.function():
             self._set_state(_DEBOUNCED_STATE | _UNSTABLE_STATE)
         self.previous_time = 0
-        if interval is None:
-            self.interval = 0.010
-        else:
-            self.interval = interval
+        self.interval = interval
 
 
     def _set_state(self, bits):
