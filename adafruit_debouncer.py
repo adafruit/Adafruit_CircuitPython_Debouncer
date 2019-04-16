@@ -47,6 +47,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Debouncer.git"
 
 import time
 import digitalio
+import touchio
 from micropython import const
 
 _DEBOUNCED_STATE = const(0x01)
@@ -62,7 +63,7 @@ class Debouncer(object):
            :param int interval: bounce threshold in seconds (default is 0.010, i.e. 10 milliseconds)
         """
         self.state = 0x00
-        if isinstance(io_or_predicate, digitalio.DigitalInOut):
+        if isinstance(io_or_predicate, digitalio.DigitalInOut) or isinstance(io_or_predicate, touchio.TouchIn):
             self.function = lambda: io_or_predicate.value
         else:
             self.function = io_or_predicate
