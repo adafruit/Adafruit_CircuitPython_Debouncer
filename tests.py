@@ -57,6 +57,7 @@ def test_interval_is_the_same():
 
 
 def test_setting_interval():
+    # Check that setting the interval does change the time the debouncer waits
     db = adafruit_debouncer.Debouncer(_false, interval=0.01)
     db.update()
 
@@ -66,6 +67,7 @@ def test_setting_interval():
     db.function = _true
     db.interval = 0.2
     db.update()
+    assert db.interval - 0.2 < 0.00001, "interval is not consistent"
     time.sleep(0.11)
     db.update()
 
@@ -73,6 +75,7 @@ def test_setting_interval():
     assertEqual(db.rose, False)
     assertEqual(db.fell, False)
 
+    # and then once the whole time has passed make sure it did change
     time.sleep(0.11)
     db.update()
     assertEqual(db.value, True)
