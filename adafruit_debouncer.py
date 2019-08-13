@@ -34,6 +34,16 @@ Implementation Notes
 
 **Hardware:**
 
+Not all hardware / CircuitPython combinations are capable of running the
+debouncer correctly for an extended length of time.  If this line works
+on your microcontroller, then the debouncer should work forever:
+
+``from time import monotonic_ns``
+
+If it gives an ImportError, then the time values available in Python become
+less accurate over the days, and the debouncer will take longer to react to
+button presses.
+
 **Software and Dependencies:**
 
 * Adafruit CircuitPython firmware for the supported boards:
