@@ -63,11 +63,14 @@ _DEBOUNCED_STATE = const(0x01)
 _UNSTABLE_STATE = const(0x02)
 _CHANGED_STATE = const(0x04)
 
+
+# Find out whether the current CircuitPython supports time.monotonic_ns(),
+# which doesn't have the accuracy limitation.
 if hasattr(time, 'monotonic_ns'):
-    INTERVAL_FACTOR = 1_000_000_000
+    MONOTONIC_UNITS_PER_SEC = 1_000_000_000
     MONOTONIC_TIME = time.monotonic_ns
 else:
-    INTERVAL_FACTOR = 1
+    MONOTONIC_UNITS_PER_SEC = 1
     MONOTONIC_TIME = time.monotonic
 
 
@@ -123,12 +126,13 @@ class Debouncer(object):
 
     @property
     def interval(self):
-        return self._interval / INTERVAL_FACTOR
+        """The debounce delay, in seconds"""
+        return self._interval / MONOTONIC_UNITS_PER_SEC
 
 
     @interval.setter
     def interval(self, new_interval_s):
-        self._interval = new_interval_s * INTERVAL_FACTOR
+        self._interval = new_interval_s * MONOTONIC_UNITS_PER_SEC
 
 
     @property
