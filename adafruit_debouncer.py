@@ -53,6 +53,14 @@ _DEBOUNCED_STATE = const(0x01)
 _UNSTABLE_STATE = const(0x02)
 _CHANGED_STATE = const(0x04)
 
+if hasattr(time, 'monotonic_ns'):
+    INTERVAL_FACTOR = 1_000_000_000
+    MONOTONIC_TIME = time.monotonic_ns
+else:
+    INTERVAL_FACTOR = 1
+    MONOTONIC_TIME = time.monotonic
+
+
 class Debouncer(object):
     """Debounce an input pin or an arbitrary predicate"""
 
@@ -90,18 +98,27 @@ class Debouncer(object):
 
     def update(self):
         """Update the debouncer state. MUST be called frequently"""
-        now = time.monotonic()
+        now = MONOTONIC_TIME()
         self._unset_state(_CHANGED_STATE)
         current_state = self.function()
         if current_state != self._get_state(_UNSTABLE_STATE):
             self.previous_time = now
             self._toggle_state(_UNSTABLE_STATE)
         else:
-            if now - self.previous_time >= self.interval:
+            if now - self.previous_time >= self._interval:
                 if current_state != self._get_state(_DEBOUNCED_STATE):
                     self.previous_time = now
                     self._toggle_state(_DEBOUNCED_STATE)
                     self._set_state(_CHANGED_STATE)
+
+    @property
+    def interval(self):
+        return self._interval / INTERVAL_FACTOR
+
+
+    @interval.setter
+    def interval(self, new_interval_s):
+        self._interval = new_interval_s * INTERVAL_FACTOR
 
 
     @property
