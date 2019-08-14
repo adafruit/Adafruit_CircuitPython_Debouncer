@@ -58,7 +58,7 @@ class Debouncer(object):
 
     def __init__(self, io_or_predicate, interval=0.010):
         """Make am instance.
-           :param DigitalInOut/function io_or_predicate: the pin (from board) to debounce
+           :param DigitalInOut/function io_or_predicate: the DigitalIO or function to debounce
            :param int interval: bounce threshold in seconds (default is 0.010, i.e. 10 milliseconds)
         """
         self.state = 0x00
