@@ -126,11 +126,11 @@ class Debouncer(object):
         return (not self._get_state(_DEBOUNCED_STATE)) and self._get_state(_CHANGED_STATE)
 
     @property
-    def lastDuration(self):
+    def last_duration(self):
         """Return the amount of time the state was stable prior to the most recent transition."""
         return self._previous_state_duration
 
     @property
-    def currentDuration(self):
+    def current_duration(self):
         """Return the time since the most recent transition."""
         return time.monotonic() - self._state_changed_time
