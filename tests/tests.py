@@ -13,29 +13,48 @@ def assertEqual(a, b):
     assert a == b, "Want %r, got %r" % (a, b)
 
 
-def test_simple():
+def test_back_and_forth():
+    # Start false
     db = adafruit_debouncer.Debouncer(_false)
     assertEqual(db.value, False)
 
+    # Set the raw state to true, update, and make sure the debounced
+    # state has not changed yet:
     db.function = _true
     db.update()
     assertEqual(db.value, False)
+    assert not db.last_duration, "There was no previous interval??"
+
+    # Sleep longer than the debounce interval, so state can change:
     time.sleep(0.02)
     db.update()
+    assert db.last_duration  # is actually duration between powerup and now
     assertEqual(db.value, True)
     assertEqual(db.rose, True)
     assertEqual(db.fell, False)
+    # Duration since last change has only been long enough to run these
+    # asserts, which should be well under 1/10 second
+    assert db.current_duration < 0.1, "Unit error? %d" % db.current_duration
 
+    # Set raw state back to false, make sure it's not instantly reflected,
+    # then wait and make sure it IS reflected after the interval has passed.
     db.function = _false
     db.update()
     assertEqual(db.value, True)
     assertEqual(db.fell, False)
     assertEqual(db.rose, False)
     time.sleep(0.02)
+    assert 0.019 < db.current_duration <= 1, \
+        "Unit error? sleep .02 -> duration %d" % db.current_duration
     db.update()
     assertEqual(db.value, False)
     assertEqual(db.rose, False)
     assertEqual(db.fell, True)
+
+    assert 0 < db.current_duration <= 0.1, \
+        "Unit error? time to run asserts %d" % db.current_duration
+    assert 0 < db.last_duration < 0.1, \
+        "Unit error? Last dur should be ~.02, is %d" % db.last_duration
 
 
 def test_interval_is_the_same():

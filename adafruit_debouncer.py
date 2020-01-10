@@ -67,11 +67,11 @@ _CHANGED_STATE = const(0x04)
 # Find out whether the current CircuitPython supports time.monotonic_ns(),
 # which doesn't have the accuracy limitation.
 if hasattr(time, 'monotonic_ns'):
-    MONOTONIC_UNITS_PER_SEC = 1_000_000_000
-    MONOTONIC_TIME = time.monotonic_ns
+    TICKS_PER_SEC = 1_000_000_000
+    MONOTONIC_TICKS = time.monotonic_ns
 else:
-    MONOTONIC_UNITS_PER_SEC = 1
-    MONOTONIC_TIME = time.monotonic
+    TICKS_PER_SEC = 1
+    MONOTONIC_TICKS = time.monotonic
 
 
 class Debouncer(object):
@@ -89,10 +89,13 @@ class Debouncer(object):
             self.function = io_or_predicate
         if self.function():
             self._set_state(_DEBOUNCED_STATE | _UNSTABLE_STATE)
-        self.previous_time = 0
-        self.interval = interval
-        self._previous_state_duration = 0
-        self._state_changed_time = 0
+        self._last_bounce_ticks = 0
+        self._last_duration_ticks = 0
+        self._state_changed_ticks = 0
+
+        # Could use the .interval setter, but pylint prefers that we explicitly
+        # set the real underlying attribute:
+        self._interval_ticks = interval * TICKS_PER_SEC
 
 
     def _set_state(self, bits):
@@ -113,30 +116,30 @@ class Debouncer(object):
 
     def update(self):
         """Update the debouncer state. MUST be called frequently"""
-        now = MONOTONIC_TIME()
+        now_ticks = MONOTONIC_TICKS()
         self._unset_state(_CHANGED_STATE)
         current_state = self.function()
         if current_state != self._get_state(_UNSTABLE_STATE):
-            self.previous_time = now
+            self._last_bounce_ticks = now_ticks
             self._toggle_state(_UNSTABLE_STATE)
         else:
-            if now - self.previous_time >= self._interval:
+            if now_ticks - self._last_bounce_ticks >= self._interval_ticks:
                 if current_state != self._get_state(_DEBOUNCED_STATE):
-                    self.previous_time = now
+                    self._last_bounce_ticks = now_ticks
                     self._toggle_state(_DEBOUNCED_STATE)
                     self._set_state(_CHANGED_STATE)
-                    self._previous_state_duration = now - self._state_changed_time
-                    self._state_changed_time = now
+                    self._last_duration_ticks = now_ticks - self._state_changed_ticks
+                    self._state_changed_ticks = now_ticks
 
     @property
     def interval(self):
         """The debounce delay, in seconds"""
-        return self._interval / MONOTONIC_UNITS_PER_SEC
+        return self._interval_ticks / TICKS_PER_SEC
 
 
     @interval.setter
     def interval(self, new_interval_s):
-        self._interval = new_interval_s * MONOTONIC_UNITS_PER_SEC
+        self._interval_ticks = new_interval_s * TICKS_PER_SEC
 
 
     @property
@@ -158,10 +161,10 @@ class Debouncer(object):
 
     @property
     def last_duration(self):
-        """Return the amount of time the state was stable prior to the most recent transition."""
-        return self._previous_state_duration
+        """Return the number of seconds the state was stable prior to the most recent transition."""
+        return self._last_duration_ticks / TICKS_PER_SEC
 
     @property
     def current_duration(self):
-        """Return the time since the most recent transition."""
-        return time.monotonic() - self._state_changed_time
+        """Return the number of seconds since the most recent transition."""
+        return (MONOTONIC_TICKS() - self._state_changed_ticks) / TICKS_PER_SEC
