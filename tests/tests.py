@@ -1,3 +1,12 @@
+"""
+How to use this test file:
+
+Copy adafruit_debouncer's dependencies to lib/ on your circuitpython device.
+Copy adafruit_debouncer.py to / on the device
+Copy this tests.py file to /main.py on the device
+Connect to the serial terminal (e.g. sudo screen /dev/ttyACM0 115200)
+Press Ctrl-D, if needed to start the tests running
+"""
 import sys
 import time
 import adafruit_debouncer
