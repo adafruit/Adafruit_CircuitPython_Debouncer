@@ -79,7 +79,7 @@ class Debouncer(object):
 
     def __init__(self, io_or_predicate, interval=0.010):
         """Make am instance.
-           :param DigitalInOut/function io_or_predicate: the pin (from board) to debounce
+           :param DigitalInOut/function io_or_predicate: the DigitalIO or function to debounce
            :param int interval: bounce threshold in seconds (default is 0.010, i.e. 10 milliseconds)
         """
         self.state = 0x00
@@ -91,6 +91,8 @@ class Debouncer(object):
             self._set_state(_DEBOUNCED_STATE | _UNSTABLE_STATE)
         self.previous_time = 0
         self.interval = interval
+        self._previous_state_duration = 0
+        self._state_changed_time = 0
 
 
     def _set_state(self, bits):
@@ -123,6 +125,8 @@ class Debouncer(object):
                     self.previous_time = now
                     self._toggle_state(_DEBOUNCED_STATE)
                     self._set_state(_CHANGED_STATE)
+                    self._previous_state_duration = now - self._state_changed_time
+                    self._state_changed_time = now
 
     @property
     def interval(self):
@@ -151,3 +155,13 @@ class Debouncer(object):
     def fell(self):
         """Return whether the debounced value went from high to low at the most recent update."""
         return (not self._get_state(_DEBOUNCED_STATE)) and self._get_state(_CHANGED_STATE)
+
+    @property
+    def last_duration(self):
+        """Return the amount of time the state was stable prior to the most recent transition."""
+        return self._previous_state_duration
+
+    @property
+    def current_duration(self):
+        """Return the time since the most recent transition."""
+        return time.monotonic() - self._state_changed_time
