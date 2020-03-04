@@ -46,7 +46,6 @@ __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Debouncer.git"
 
 import time
-import digitalio
 from micropython import const
 
 _DEBOUNCED_STATE = const(0x01)
