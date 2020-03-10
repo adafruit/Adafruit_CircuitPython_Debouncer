@@ -34,10 +34,12 @@ from adafruit_debouncer import Debouncer
 
 ss = crickit.seesaw
 
+
 def make_crikit_signal_debouncer(pin):
     """Return a lambda to read the specified pin"""
     ss.pin_mode(pin, ss.INPUT_PULLUP)
     return Debouncer(lambda: ss.digital_read(pin))
+
 
 # Two buttons are pullups, connect to ground to activate
 clock = make_crikit_signal_debouncer(crickit.SIGNAL1)
@@ -54,6 +56,9 @@ while True:
     signal_5.update()
 
     if clock.fell:
-        print('%u %u %u %u' % (signal_2.value, signal_3.value, signal_4.value, signal_5.value))
+        print(
+            "%u %u %u %u"
+            % (signal_2.value, signal_3.value, signal_4.value, signal_5.value)
+        )
 
     time.sleep(0.1)

@@ -11,11 +11,11 @@ switch = Debouncer(button)
 while True:
     switch.update()
     if switch.fell:
-        print('pressed')
-        print('was released for ', switch.last_duration)
+        print("pressed")
+        print("was released for ", switch.last_duration)
     elif switch.rose:
-        print('released')
-        print('was pressed for ', switch.last_duration)
+        print("released")
+        print("was pressed for ", switch.last_duration)
     else:
-        print('Stable for ', switch.current_duration)
+        print("Stable for ", switch.current_duration)
     time.sleep(0.1)
