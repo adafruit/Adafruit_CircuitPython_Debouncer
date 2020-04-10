@@ -53,7 +53,7 @@ _UNSTABLE_STATE = const(0x02)
 _CHANGED_STATE = const(0x04)
 
 
-class Debouncer():
+class Debouncer:
     """Debounce an input pin or an arbitrary predicate"""
 
     def __init__(self, io_or_predicate, interval=0.010):
