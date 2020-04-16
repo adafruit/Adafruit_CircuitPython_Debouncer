@@ -56,13 +56,11 @@ __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Debouncer.git"
 
 import time
-import digitalio
 from micropython import const
 
 _DEBOUNCED_STATE = const(0x01)
 _UNSTABLE_STATE = const(0x02)
 _CHANGED_STATE = const(0x04)
-
 
 # Find out whether the current CircuitPython supports time.monotonic_ns(),
 # which doesn't have the accuracy limitation.
@@ -74,7 +72,7 @@ else:
     MONOTONIC_TICKS = time.monotonic
 
 
-class Debouncer(object):
+class Debouncer:
     """Debounce an input pin or an arbitrary predicate"""
 
     def __init__(self, io_or_predicate, interval=0.010):
@@ -83,7 +81,7 @@ class Debouncer(object):
            :param int interval: bounce threshold in seconds (default is 0.010, i.e. 10 milliseconds)
         """
         self.state = 0x00
-        if isinstance(io_or_predicate, digitalio.DigitalInOut):
+        if hasattr(io_or_predicate, "value"):
             self.function = lambda: io_or_predicate.value
         else:
             self.function = io_or_predicate
@@ -97,22 +95,17 @@ class Debouncer(object):
         # set the real underlying attribute:
         self._interval_ticks = interval * TICKS_PER_SEC
 
-
     def _set_state(self, bits):
         self.state |= bits
-
 
     def _unset_state(self, bits):
         self.state &= ~bits
 
-
     def _toggle_state(self, bits):
         self.state ^= bits
 
-
     def _get_state(self, bits):
         return (self.state & bits) != 0
-
 
     def update(self):
         """Update the debouncer state. MUST be called frequently"""
@@ -141,23 +134,22 @@ class Debouncer(object):
     def interval(self, new_interval_s):
         self._interval_ticks = new_interval_s * TICKS_PER_SEC
 
-
     @property
     def value(self):
         """Return the current debounced value."""
         return self._get_state(_DEBOUNCED_STATE)
-
 
     @property
     def rose(self):
         """Return whether the debounced value went from low to high at the most recent update."""
         return self._get_state(_DEBOUNCED_STATE) and self._get_state(_CHANGED_STATE)
 
-
     @property
     def fell(self):
         """Return whether the debounced value went from high to low at the most recent update."""
-        return (not self._get_state(_DEBOUNCED_STATE)) and self._get_state(_CHANGED_STATE)
+        return (not self._get_state(_DEBOUNCED_STATE)) and self._get_state(
+            _CHANGED_STATE
+        )
 
     @property
     def last_duration(self):
