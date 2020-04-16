@@ -64,7 +64,7 @@ _CHANGED_STATE = const(0x04)
 
 # Find out whether the current CircuitPython supports time.monotonic_ns(),
 # which doesn't have the accuracy limitation.
-if hasattr(time, 'monotonic_ns'):
+if hasattr(time, "monotonic_ns"):
     TICKS_PER_SEC = 1_000_000_000
     MONOTONIC_TICKS = time.monotonic_ns
 else:
@@ -128,7 +128,6 @@ class Debouncer:
     def interval(self):
         """The debounce delay, in seconds"""
         return self._interval_ticks / TICKS_PER_SEC
-
 
     @interval.setter
     def interval(self, new_interval_s):
