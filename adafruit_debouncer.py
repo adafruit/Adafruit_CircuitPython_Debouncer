@@ -68,7 +68,7 @@ try:
     time.monotonic_ns()
     TICKS_PER_SEC = 1_000_000_000
     MONOTONIC_TICKS = time.monotonic_ns
-except (ImportError, NotImplementedError):
+except (AttributeError, NotImplementedError):
     TICKS_PER_SEC = 1
     MONOTONIC_TICKS = time.monotonic
 
