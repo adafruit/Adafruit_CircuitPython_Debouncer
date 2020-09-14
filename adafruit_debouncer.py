@@ -62,12 +62,13 @@ _DEBOUNCED_STATE = const(0x01)
 _UNSTABLE_STATE = const(0x02)
 _CHANGED_STATE = const(0x04)
 
-# Find out whether the current CircuitPython supports time.monotonic_ns(),
+# Find out whether the current CircuitPython really supports time.monotonic_ns(),
 # which doesn't have the accuracy limitation.
-if hasattr(time, "monotonic_ns"):
+try:
+    time.monotonic_ns()
     TICKS_PER_SEC = 1_000_000_000
     MONOTONIC_TICKS = time.monotonic_ns
-else:
+except (AttributeError, NotImplementedError):
     TICKS_PER_SEC = 1
     MONOTONIC_TICKS = time.monotonic
 
