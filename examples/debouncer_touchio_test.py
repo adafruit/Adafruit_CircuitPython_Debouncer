@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 """
 This example shows how to use the debouncer library on the signals coming from
 a cap-sense pin with touchio.
