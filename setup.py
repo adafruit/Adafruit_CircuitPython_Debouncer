@@ -1,9 +1,5 @@
-# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
-#
-# SPDX-License-Identifier: MIT
-
 # SPDX-FileCopyrightText: 2017 Scott Shawcroft, written for Adafruit Industries
-# SPDX-FileCopyrightText: Copyright (c) 2020 Dave Astels for Adafruit Industries
+# SPDX-FileCopyrightText: 2020 Dave Astels for Adafruit Industries
 #
 # SPDX-License-Identifier: MIT
 
