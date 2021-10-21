@@ -60,7 +60,7 @@ class Debouncer:
     """Debounce an input pin or an arbitrary predicate"""
 
     def __init__(self, io_or_predicate, interval=0.010):
-        """Make am instance.
+        """Make an instance.
         :param DigitalInOut/function io_or_predicate: the DigitalIO or function to debounce
         :param int interval: bounce threshold in seconds (default is 0.010, i.e. 10 milliseconds)
         """
