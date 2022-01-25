@@ -127,3 +127,58 @@ class Debouncer:
     def current_duration(self):
         """Return the number of seconds since the most recent transition."""
         return ticks_diff(ticks_ms(), self._state_changed_ticks) / _TICKS_PER_SEC
+
+
+
+class Button(Debouncer):
+    """Debounce counter"""
+    def __init__(self, pin, short_duration = 0.2, long_duration = 0.5, active_down = True, **kwargs):
+        self.short_duration = short_duration
+        self.long_duration = long_duration
+        self.active_down = active_down
+        self.last_change_ticks = ticks_ms()
+        self.short_counter = 0
+        self.short_showed = 0
+        self.long_registered = False
+        self.long_showed = False
+        super(Button, self).__init__(pin, **kwargs)
+
+    def pushed (self):
+        return (self.active_down and super().fell) or (not self.active_down and super().rose)
+
+    def released (self):
+        return (self.active_down and super().rose) or (not self.active_down and super().fell)
+
+    def update (self):
+        super().update()
+        if self.pushed():
+            self.last_change_ticks = ticks_ms()
+            self.short_counter = self.short_counter + 1
+        elif self.released():
+            self.last_change_ticks = ticks_ms()
+            if self.long_registered:
+                self.long_registered = False
+                self.long_showed = False
+        else:
+            now_ticks = ticks_ms()
+            duration = ticks_diff(now_ticks, self.last_change_ticks)
+            if not self.long_registered and self.value != self.active_down and duration > self.long_duration:
+                self.long_registered = True
+                self.short_showed = self.short_counter - 1
+                self.short_counter = 0
+            elif self.short_counter > 0 and self.value == self.active_down and duration > self.short_duration:
+                self.short_showed = self.short_counter
+                self.short_counter = 0
+
+    @property
+    def short_count (self):
+        ret = self.short_showed
+        self.short_showed = 0
+        return ret
+
+    @property
+    def long_press (self):
+        if self.long_registered and not self.long_showed:
+            self.long_showed = True
+            return True
+        return False
