@@ -2,9 +2,7 @@ import board
 import digitalio
 from adafruit_debouncer import Button
 
-"""
-This example shows how to count short clicks or detect a long press
-"""
+# This example shows how to count short clicks or detect a long press
 
 pin = digitalio.DigitalInOut(board.D12)
 pin.direction = digitalio.Direction.INPUT

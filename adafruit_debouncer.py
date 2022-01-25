@@ -28,8 +28,8 @@ Implementation Notes
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Debouncer.git"
 
-from adafruit_ticks import ticks_ms, ticks_diff
 from micropython import const
+from adafruit_ticks import ticks_ms, ticks_diff
 
 _DEBOUNCED_STATE = const(0x01)
 _UNSTABLE_STATE = const(0x02)
@@ -132,52 +132,53 @@ class Debouncer:
 
 class Button(Debouncer):
     """Debounce counter"""
-    def __init__(self, pin, short_duration = 0.2, long_duration = 0.5, active_down = True, **kwargs):
+    def __init__(self, pin, short_duration=0.2, long_duration=0.5, active_down=True, **kwargs):
         self.short_duration = short_duration
         self.long_duration = long_duration
         self.active_down = active_down
         self.last_change_ticks = ticks_ms()
         self.short_counter = 0
-        self.short_showed = 0
+        self.short_to_show = 0
         self.long_registered = False
         self.long_showed = False
         super(Button, self).__init__(pin, **kwargs)
 
-    def pushed (self):
+    def _pushed(self):
         return (self.active_down and super().fell) or (not self.active_down and super().rose)
 
-    def released (self):
+    def _released(self):
         return (self.active_down and super().rose) or (not self.active_down and super().fell)
 
-    def update (self):
+    def update(self):
         super().update()
-        if self.pushed():
+        if self._pushed():
             self.last_change_ticks = ticks_ms()
             self.short_counter = self.short_counter + 1
-        elif self.released():
+        elif self._released():
             self.last_change_ticks = ticks_ms()
             if self.long_registered:
                 self.long_registered = False
                 self.long_showed = False
         else:
-            now_ticks = ticks_ms()
-            duration = ticks_diff(now_ticks, self.last_change_ticks)
+            duration = ticks_diff(ticks_ms(), self.last_change_ticks)
             if not self.long_registered and self.value != self.active_down and duration > self.long_duration:
                 self.long_registered = True
-                self.short_showed = self.short_counter - 1
+                self.short_to_show = self.short_counter - 1
                 self.short_counter = 0
             elif self.short_counter > 0 and self.value == self.active_down and duration > self.short_duration:
-                self.short_showed = self.short_counter
+                self.short_to_show = self.short_counter
                 self.short_counter = 0
 
     @property
-    def short_count (self):
-        ret = self.short_showed
-        self.short_showed = 0
+    def short_count(self):
+        """Return the number of short press"""
+        ret = self.short_to_show
+        self.short_to_show = 0
         return ret
 
     @property
-    def long_press (self):
+    def long_press(self):
+        """Return whether long press has occured"""
         if self.long_registered and not self.long_showed:
             self.long_showed = True
             return True
