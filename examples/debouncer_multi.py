@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022 david gauchard
+# SPDX-License-Identifier: MIT
+
 import board
 import digitalio
 from adafruit_debouncer import Button

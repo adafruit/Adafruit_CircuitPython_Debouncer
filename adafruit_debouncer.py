@@ -141,7 +141,7 @@ class Button(Debouncer):
         self.short_to_show = 0
         self.long_registered = False
         self.long_showed = False
-        super(Button, self).__init__(pin, **kwargs)
+        super().__init__(pin, **kwargs)
 
     def _pushed(self):
         return (self.active_down and super().fell) or (not self.active_down and super().rose)
