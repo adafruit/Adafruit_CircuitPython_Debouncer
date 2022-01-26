@@ -131,11 +131,15 @@ class Debouncer:
 
 class Button(Debouncer):
     """Debounce counter"""
-    def __init__(self, pin,
-                 short_duration_ms=200,
-                 long_duration_ms=500,
-                 active_down=True,
-                 **kwargs):
+
+    def __init__(
+        self,
+        pin,
+        short_duration_ms=200,
+        long_duration_ms=500,
+        active_down=True,
+        **kwargs
+    ):
         self.short_duration_ms = short_duration_ms
         self.long_duration_ms = long_duration_ms
         self.active_down = active_down
@@ -147,12 +151,14 @@ class Button(Debouncer):
         super().__init__(pin, **kwargs)
 
     def _pushed(self):
-        return (self.active_down and super().fell) or \
-               (not self.active_down and super().rose)
+        return (self.active_down and super().fell) or (
+            not self.active_down and super().rose
+        )
 
     def _released(self):
-        return (self.active_down and super().rose) or \
-               (not self.active_down and super().fell)
+        return (self.active_down and super().rose) or (
+            not self.active_down and super().fell
+        )
 
     def update(self):
         super().update()
@@ -166,15 +172,19 @@ class Button(Debouncer):
                 self.long_showed = False
         else:
             duration = ticks_diff(ticks_ms(), self.last_change_ms)
-            if not self.long_registered and \
-               self.value != self.active_down and \
-               duration > self.long_duration_ms:
+            if (
+                not self.long_registered
+                and self.value != self.active_down
+                and duration > self.long_duration_ms
+            ):
                 self.long_registered = True
                 self.short_to_show = self.short_counter - 1
                 self.short_counter = 0
-            elif self.short_counter > 0 and \
-                 self.value == self.active_down and \
-                 duration > self.short_duration_ms:
+            elif (
+                self.short_counter > 0
+                and self.value == self.active_down
+                and duration > self.short_duration_ms
+            ):
                 self.short_to_show = self.short_counter
                 self.short_counter = 0
 
