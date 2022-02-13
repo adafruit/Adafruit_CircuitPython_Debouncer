@@ -28,8 +28,8 @@ Implementation Notes
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Debouncer.git"
 
-from adafruit_ticks import ticks_ms, ticks_diff
 from micropython import const
+from adafruit_ticks import ticks_ms, ticks_diff
 
 _DEBOUNCED_STATE = const(0x01)
 _UNSTABLE_STATE = const(0x02)
@@ -127,3 +127,78 @@ class Debouncer:
     def current_duration(self):
         """Return the number of seconds since the most recent transition."""
         return ticks_diff(ticks_ms(), self._state_changed_ticks) / _TICKS_PER_SEC
+
+
+class Button(Debouncer):
+    """Debounce counter"""
+
+    def __init__(
+        self,
+        pin,
+        short_duration_ms=200,
+        long_duration_ms=500,
+        active_down=True,
+        **kwargs
+    ):
+        self.short_duration_ms = short_duration_ms
+        self.long_duration_ms = long_duration_ms
+        self.active_down = active_down
+        self.last_change_ms = ticks_ms()
+        self.short_counter = 0
+        self.short_to_show = 0
+        self.long_registered = False
+        self.long_showed = False
+        super().__init__(pin, **kwargs)
+
+    def _pushed(self):
+        return (self.active_down and super().fell) or (
+            not self.active_down and super().rose
+        )
+
+    def _released(self):
+        return (self.active_down and super().rose) or (
+            not self.active_down and super().fell
+        )
+
+    def update(self):
+        super().update()
+        if self._pushed():
+            self.last_change_ms = ticks_ms()
+            self.short_counter = self.short_counter + 1
+        elif self._released():
+            self.last_change_ms = ticks_ms()
+            if self.long_registered:
+                self.long_registered = False
+                self.long_showed = False
+        else:
+            duration = ticks_diff(ticks_ms(), self.last_change_ms)
+            if (
+                not self.long_registered
+                and self.value != self.active_down
+                and duration > self.long_duration_ms
+            ):
+                self.long_registered = True
+                self.short_to_show = self.short_counter - 1
+                self.short_counter = 0
+            elif (
+                self.short_counter > 0
+                and self.value == self.active_down
+                and duration > self.short_duration_ms
+            ):
+                self.short_to_show = self.short_counter
+                self.short_counter = 0
+
+    @property
+    def short_count(self):
+        """Return the number of short press"""
+        ret = self.short_to_show
+        self.short_to_show = 0
+        return ret
+
+    @property
+    def long_press(self):
+        """Return whether long press has occured"""
+        if self.long_registered and not self.long_showed:
+            self.long_showed = True
+            return True
+        return False
