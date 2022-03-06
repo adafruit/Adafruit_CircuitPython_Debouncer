@@ -163,8 +163,8 @@ class Button(Debouncer):
             not self.active_down and super().fell
         )
 
-    def update(self):
-        super().update()
+    def update(self, new_state=None):
+        super().update(new_state)
         if self._pushed():
             self.last_change_ms = ticks_ms()
             self.short_counter = self.short_counter + 1
