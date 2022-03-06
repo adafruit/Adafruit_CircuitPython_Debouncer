@@ -73,11 +73,14 @@ class Debouncer:
     def _get_state(self, bits):
         return (self.state & bits) != 0
 
-    def update(self):
+    def update(self, new_state=None):
         """Update the debouncer state. MUST be called frequently"""
         now_ticks = ticks_ms()
         self._unset_state(_CHANGED_STATE)
-        current_state = self.function()
+        if new_state is None:
+            current_state = self.function()
+        else:
+            current_state = bool(new_state)
         if current_state != self._get_state(_UNSTABLE_STATE):
             self._last_bounce_ticks = now_ticks
             self._toggle_state(_UNSTABLE_STATE)
