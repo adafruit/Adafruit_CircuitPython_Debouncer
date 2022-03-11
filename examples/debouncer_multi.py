@@ -16,6 +16,5 @@ while True:
     switch.update()
     if switch.long_press:
         print("long")
-    count = switch.short_count
-    if count != 0:
-        print("count=", count)
+    if switch.short_count != 0:
+        print("count=", switch.short_count)

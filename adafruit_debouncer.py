@@ -133,7 +133,16 @@ class Debouncer:
 
 
 class Button(Debouncer):
-    """Debounce counter"""
+    """
+    Debounce counter. Counts multiple short presses (double click, triple click, etc.)
+    Reports long presses.
+
+    :param DigitalInOut/function pin: the DigitalIO or function to debounce.
+    :param int short_duration_ms: the maximum length of a short press in milliseconds.
+    :param int long_duration_ms: the minimum length of a long press in milliseconds.
+    :param bool active_down: True if a `False` value for the predicate represents
+    "pressed" (like pull up buttons).
+    """
 
     def __init__(
         self,
@@ -150,29 +159,28 @@ class Button(Debouncer):
         self.short_counter = 0
         self.short_to_show = 0
         self.long_registered = False
-        self.long_showed = False
+        self.long_to_show = False
         super().__init__(pin, **kwargs)
 
-    def _pushed(self):
-        return (self.active_down and super().fell) or (
-            not self.active_down and super().rose
-        )
+    @property
+    def pressed(self):
+        """Return whether the button was pressed or not at the last update."""
+        return (self.active_down and self.fell) or (not self.active_down and self.rose)
 
-    def _released(self):
-        return (self.active_down and super().rose) or (
-            not self.active_down and super().fell
-        )
+    @property
+    def released(self):
+        """Return whether the button was release or not at the last update."""
+        return (self.active_down and self.rose) or (not self.active_down and self.fell)
 
     def update(self, new_state=None):
         super().update(new_state)
-        if self._pushed():
+        if self.pressed:
             self.last_change_ms = ticks_ms()
             self.short_counter = self.short_counter + 1
-        elif self._released():
+        elif self.released:
             self.last_change_ms = ticks_ms()
             if self.long_registered:
                 self.long_registered = False
-                self.long_showed = False
         else:
             duration = ticks_diff(ticks_ms(), self.last_change_ms)
             if (
@@ -181,6 +189,7 @@ class Button(Debouncer):
                 and duration > self.long_duration_ms
             ):
                 self.long_registered = True
+                self.long_to_show = True
                 self.short_to_show = self.short_counter - 1
                 self.short_counter = 0
             elif (
@@ -190,18 +199,17 @@ class Button(Debouncer):
             ):
                 self.short_to_show = self.short_counter
                 self.short_counter = 0
+            else:
+                self.long_to_show = False
+                self.short_to_show = 0
 
     @property
     def short_count(self):
-        """Return the number of short press"""
-        ret = self.short_to_show
-        self.short_to_show = 0
-        return ret
+        """Return the number of short press if a series of short presses has
+        ended at the last update."""
+        return self.short_to_show
 
     @property
     def long_press(self):
-        """Return whether long press has occured"""
-        if self.long_registered and not self.long_showed:
-            self.long_showed = True
-            return True
-        return False
+        """Return whether a long press has occured at the last update."""
+        return self.long_to_show
