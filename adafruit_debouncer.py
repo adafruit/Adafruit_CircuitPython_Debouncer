@@ -140,8 +140,8 @@ class Button(Debouncer):
     :param DigitalInOut/function pin: the DigitalIO or function to debounce.
     :param int short_duration_ms: the maximum length of a short press in milliseconds.
     :param int long_duration_ms: the minimum length of a long press in milliseconds.
-    :param bool active_down: True if a `False` value for the predicate represents
-    "pressed" (like pull up buttons).
+    :param bool value_when_pressed: the value of the predicate when the button is
+    pressed. Defaults to False (pull up buttons are common).
     """
 
     def __init__(
@@ -149,12 +149,12 @@ class Button(Debouncer):
         pin,
         short_duration_ms=200,
         long_duration_ms=500,
-        active_down=True,
+        value_when_pressed=False,
         **kwargs
     ):
         self.short_duration_ms = short_duration_ms
         self.long_duration_ms = long_duration_ms
-        self.active_down = active_down
+        self.value_when_pressed = value_when_pressed
         self.last_change_ms = ticks_ms()
         self.short_counter = 0
         self.short_to_show = 0
@@ -165,12 +165,16 @@ class Button(Debouncer):
     @property
     def pressed(self):
         """Return whether the button was pressed or not at the last update."""
-        return (self.active_down and self.fell) or (not self.active_down and self.rose)
+        return (self.value_when_pressed and self.rose) or (
+            not self.value_when_pressed and self.fell
+        )
 
     @property
     def released(self):
         """Return whether the button was release or not at the last update."""
-        return (self.active_down and self.rose) or (not self.active_down and self.fell)
+        return (self.value_when_pressed and self.fell) or (
+            not self.value_when_pressed and self.rose
+        )
 
     def update(self, new_state=None):
         super().update(new_state)
@@ -185,7 +189,7 @@ class Button(Debouncer):
             duration = ticks_diff(ticks_ms(), self.last_change_ms)
             if (
                 not self.long_registered
-                and self.value != self.active_down
+                and self.value == self.value_when_pressed
                 and duration > self.long_duration_ms
             ):
                 self.long_registered = True
@@ -194,7 +198,7 @@ class Button(Debouncer):
                 self.short_counter = 0
             elif (
                 self.short_counter > 0
-                and self.value == self.active_down
+                and self.value != self.value_when_pressed
                 and duration > self.short_duration_ms
             ):
                 self.short_to_show = self.short_counter
