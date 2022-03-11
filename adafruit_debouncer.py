@@ -134,14 +134,16 @@ class Debouncer:
 
 class Button(Debouncer):
     """
-    Debounce counter. Counts multiple short presses (double click, triple click, etc.)
-    Reports long presses.
+    Debouncer for buttons. Reports ``pressed`` and ``released`` for the button state.
+    Counts multiple short presses, allowing to detect double clicks, triple clicks, etc.
+    Reports long presses separately. A long press can immediately follow multiple clicks,
+    in which case the long click will be reported in the same update as the short clicks.
 
     :param DigitalInOut/function pin: the DigitalIO or function to debounce.
     :param int short_duration_ms: the maximum length of a short press in milliseconds.
     :param int long_duration_ms: the minimum length of a long press in milliseconds.
     :param bool value_when_pressed: the value of the predicate when the button is
-    pressed. Defaults to False (pull up buttons are common).
+                                    pressed. Defaults to False (for pull up buttons).
     """
 
     def __init__(
