@@ -33,9 +33,9 @@ from adafruit_ticks import ticks_ms, ticks_diff
 
 try:
     from typing import Callable, Optional, Union
+    from circuitpython_typing.io import ROValueIO
 except ImportError:
     pass
-from digitalio import DigitalInOut
 
 _DEBOUNCED_STATE: int = const(0x01)
 _UNSTABLE_STATE: int = const(0x02)
@@ -49,7 +49,7 @@ class Debouncer:
 
     def __init__(
         self,
-        io_or_predicate: Union[DigitalInOut, Callable[[], bool]],
+        io_or_predicate: Union[ROValueIO, Callable[[], bool]],
         interval: float = 0.010,
     ) -> None:
         """Make an instance.
@@ -58,7 +58,7 @@ class Debouncer:
         :param float interval: bounce threshold in seconds (default is 0.010, i.e. 10 milliseconds)
         """
         self.state = 0x00
-        if isinstance(io_or_predicate, DigitalInOut):
+        if hasattr(io_or_predicate, "value"):
             self.function = lambda: io_or_predicate.value
         else:
             self.function = io_or_predicate
@@ -113,7 +113,7 @@ class Debouncer:
 
     @interval.setter
     def interval(self, new_interval_s: float) -> None:
-        self._interval_ticks = int(new_interval_s * _TICKS_PER_SEC)
+        self._interval_ticks = new_interval_s * _TICKS_PER_SEC
 
     @property
     def value(self) -> bool:
@@ -159,12 +159,12 @@ class Button(Debouncer):
 
     def __init__(
         self,
-        pin: DigitalInOut,
+        pin: Union[ROValueIO, Callable[[], bool]],
         short_duration_ms: int = 200,
         long_duration_ms: int = 500,
         value_when_pressed: bool = False,
         **kwargs
-    ):
+    ) -> None:
         self.short_duration_ms = short_duration_ms
         self.long_duration_ms = long_duration_ms
         self.value_when_pressed = value_when_pressed
@@ -189,7 +189,7 @@ class Button(Debouncer):
             not self.value_when_pressed and self.rose
         )
 
-    def update(self, new_state: Optional[int] = None):
+    def update(self, new_state: Optional[int] = None) -> None:
         super().update(new_state)
         if self.pressed:
             self.last_change_ms = ticks_ms()
