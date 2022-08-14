@@ -107,6 +107,9 @@ class Debouncer:
                     self._state_changed_ticks = now_ticks
 
     def force_set(self, state: bool)->None:
+        """Manually set debounced value and trigger .rose or .fell
+        :param bool state: Value you want to manually set.
+        """
         if self._get_state(_DEBOUNCED_STATE) != state:
             self._set_state(_CHANGED_STATE)
             self._toggle_state(_DEBOUNCED_STATE)
