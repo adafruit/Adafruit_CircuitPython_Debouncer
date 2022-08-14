@@ -106,6 +106,11 @@ class Debouncer:
                     )
                     self._state_changed_ticks = now_ticks
 
+    def force_set(self, state: bool)->None:
+        if self._get_state(_DEBOUNCED_STATE) != state:
+            self._set_state(_CHANGED_STATE)
+            self._toggle_state(_DEBOUNCED_STATE)
+
     @property
     def interval(self) -> float:
         """The debounce delay, in seconds"""
