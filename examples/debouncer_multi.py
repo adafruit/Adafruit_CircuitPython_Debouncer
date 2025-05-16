@@ -3,6 +3,7 @@
 
 import board
 import digitalio
+
 from adafruit_debouncer import Button
 
 # This example shows how to count short clicks or detect a long press

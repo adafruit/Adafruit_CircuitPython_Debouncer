@@ -11,8 +11,10 @@ Copy this tests.py file to /main.py on the device
 Connect to the serial terminal (e.g. sudo screen /dev/ttyACM0 115200)
 Press Ctrl-D, if needed to start the tests running
 """
+
 import sys
 import time
+
 import adafruit_debouncer
 
 
@@ -24,8 +26,8 @@ def _false():
     return False
 
 
-def assertEqual(var_a, var_b):  # pylint: disable=invalid-name
-    assert var_a == var_b, "Want %r, got %r" % (var_a, var_b)
+def assertEqual(var_a, var_b):
+    assert var_a == var_b, f"Want {var_a!r}, got {var_b!r}"
 
 
 def test_back_and_forth():
@@ -49,9 +51,7 @@ def test_back_and_forth():
     assertEqual(debouncer.fell, False)
     # Duration since last change has only been long enough to run these
     # asserts, which should be well under 1/10 second
-    assert debouncer.current_duration < 0.1, (
-        "Unit error? %d" % debouncer.current_duration
-    )
+    assert debouncer.current_duration < 0.1, "Unit error? %d" % debouncer.current_duration
 
     # Set raw state back to false, make sure it's not instantly reflected,
     # then wait and make sure it IS reflected after the interval has passed.
@@ -133,8 +133,8 @@ def run():
                 test()
                 print("PASS")
                 passes += 1
-            except Exception as err:  # pylint: disable=broad-except
-                sys.print_exception(err)  # pylint: disable=no-member
+            except Exception as err:
+                sys.print_exception(err)
                 print("FAIL")
                 fails += 1
 
