@@ -5,9 +5,12 @@
 This example shows how to use the debouncer library on the signals coming from
 a cap-sense pin with touchio.
 """
+
 import time
+
 import board
 import touchio
+
 from adafruit_debouncer import Debouncer
 
 touch_pad = board.A1

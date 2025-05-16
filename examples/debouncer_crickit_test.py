@@ -1,14 +1,14 @@
 # SPDX-FileCopyrightText: 2019 Dave Astels for Adafruit Industries
 # SPDX-License-Identifier: MIT
 
-# pylint: disable=invalid-name
-
 # Wait for a falling transition on the clock (signal 1)
 # When it's seen, display the values of signal 2-5
 # Demonstrates debouncing a lambda predicate
 
 import time
+
 from adafruit_crickit import crickit
+
 from adafruit_debouncer import Debouncer
 
 ss = crickit.seesaw
@@ -35,9 +35,6 @@ while True:
     signal_5.update()
 
     if clock.fell:
-        print(
-            "%u %u %u %u"
-            % (signal_2.value, signal_3.value, signal_4.value, signal_5.value)
-        )
+        print("%u %u %u %u" % (signal_2.value, signal_3.value, signal_4.value, signal_5.value))
 
     time.sleep(0.1)

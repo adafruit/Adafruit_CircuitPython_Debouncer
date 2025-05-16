@@ -1,10 +1,9 @@
 # SPDX-FileCopyrightText: 2019 Dave Astels for Adafruit Industries
 # SPDX-License-Identifier: MIT
 
-# pylint: disable=invalid-name
-
 import board
 import digitalio
+
 from adafruit_debouncer import Debouncer
 
 pin = digitalio.DigitalInOut(board.D12)

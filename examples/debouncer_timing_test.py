@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: MIT
 
 import time
+
 import board
 from digitalio import DigitalInOut, Direction, Pull
+
 from adafruit_debouncer import Debouncer
 
 button = DigitalInOut(board.D4)

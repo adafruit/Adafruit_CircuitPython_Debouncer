@@ -28,11 +28,12 @@ Implementation Notes
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Debouncer.git"
 
+from adafruit_ticks import ticks_diff, ticks_ms
 from micropython import const
-from adafruit_ticks import ticks_ms, ticks_diff
 
 try:
     from typing import Callable, Optional, Union
+
     from circuitpython_typing.io import ROValueIO
 except ImportError:
     pass
@@ -95,16 +96,13 @@ class Debouncer:
         if current_state != self._get_state(_UNSTABLE_STATE):
             self._last_bounce_ticks = now_ticks
             self._toggle_state(_UNSTABLE_STATE)
-        else:
-            if ticks_diff(now_ticks, self._last_bounce_ticks) >= self._interval_ticks:
-                if current_state != self._get_state(_DEBOUNCED_STATE):
-                    self._last_bounce_ticks = now_ticks
-                    self._toggle_state(_DEBOUNCED_STATE)
-                    self._set_state(_CHANGED_STATE)
-                    self._last_duration_ticks = ticks_diff(
-                        now_ticks, self._state_changed_ticks
-                    )
-                    self._state_changed_ticks = now_ticks
+        elif ticks_diff(now_ticks, self._last_bounce_ticks) >= self._interval_ticks:
+            if current_state != self._get_state(_DEBOUNCED_STATE):
+                self._last_bounce_ticks = now_ticks
+                self._toggle_state(_DEBOUNCED_STATE)
+                self._set_state(_CHANGED_STATE)
+                self._last_duration_ticks = ticks_diff(now_ticks, self._state_changed_ticks)
+                self._state_changed_ticks = now_ticks
 
     @property
     def interval(self) -> float:
@@ -128,9 +126,7 @@ class Debouncer:
     @property
     def fell(self) -> bool:
         """Return whether the debounced value went from high to low at the most recent update."""
-        return (not self._get_state(_DEBOUNCED_STATE)) and self._get_state(
-            _CHANGED_STATE
-        )
+        return (not self._get_state(_DEBOUNCED_STATE)) and self._get_state(_CHANGED_STATE)
 
     @property
     def last_duration(self) -> float:
@@ -163,7 +159,7 @@ class Button(Debouncer):
         short_duration_ms: int = 200,
         long_duration_ms: int = 500,
         value_when_pressed: bool = False,
-        **kwargs
+        **kwargs,
     ) -> None:
         self.short_duration_ms = short_duration_ms
         self.long_duration_ms = long_duration_ms
