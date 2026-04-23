@@ -189,7 +189,7 @@ class Button(Debouncer):
         super().update(new_state)
         if self.pressed:
             self.last_change_ms = ticks_ms()
-            self.short_counter = self.short_counter + 1
+            self.short_counter += 1
         elif self.released:
             self.last_change_ms = ticks_ms()
             if self.long_registered:

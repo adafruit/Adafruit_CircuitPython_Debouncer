@@ -51,7 +51,7 @@ def test_back_and_forth():
     assertEqual(debouncer.fell, False)
     # Duration since last change has only been long enough to run these
     # asserts, which should be well under 1/10 second
-    assert debouncer.current_duration < 0.1, "Unit error? %d" % debouncer.current_duration
+    assert debouncer.current_duration < 0.1, f"Unit error? {debouncer.current_duration:d}"
 
     # Set raw state back to false, make sure it's not instantly reflected,
     # then wait and make sure it IS reflected after the interval has passed.
@@ -62,7 +62,7 @@ def test_back_and_forth():
     assertEqual(debouncer.rose, False)
     time.sleep(0.02)
     assert 0.019 < debouncer.current_duration <= 1, (
-        "Unit error? sleep .02 -> duration %d" % debouncer.current_duration
+        f"Unit error? sleep .02 -> duration {debouncer.current_duration:d}"
     )
     debouncer.update()
     assertEqual(debouncer.value, False)
@@ -70,10 +70,10 @@ def test_back_and_forth():
     assertEqual(debouncer.fell, True)
 
     assert 0 < debouncer.current_duration <= 0.1, (
-        "Unit error? time to run asserts %d" % debouncer.current_duration
+        f"Unit error? time to run asserts {debouncer.current_duration:d}"
     )
     assert 0 < debouncer.last_duration < 0.1, (
-        "Unit error? Last dur should be ~.02, is %d" % debouncer.last_duration
+        f"Unit error? Last dur should be ~.02, is {debouncer.last_duration:d}"
     )
 
 

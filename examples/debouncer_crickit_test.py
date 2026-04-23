@@ -35,6 +35,6 @@ while True:
     signal_5.update()
 
     if clock.fell:
-        print("%u %u %u %u" % (signal_2.value, signal_3.value, signal_4.value, signal_5.value))
+        print(f"{signal_2.value} {signal_3.value} {signal_4.value} {signal_5.value}")
 
     time.sleep(0.1)
